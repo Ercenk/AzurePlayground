@@ -1,5 +1,5 @@
-# Azure Playground
+# Azure Playground - Various samples from the team
 
-I will try to post Azure snippets here...
+Various samples Experiences team put together on Azure
 
 1. [Azure Advisor API with Azure Logic Apps](./advisorWithLogicApp)
