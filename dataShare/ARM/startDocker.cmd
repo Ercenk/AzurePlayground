@@ -1,0 +1,1 @@
+docker run -it --rm -v %cd%%:/var/scripts mcr.microsoft.com/azure-cli

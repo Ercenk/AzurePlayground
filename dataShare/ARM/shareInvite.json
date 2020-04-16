@@ -1,0 +1,28 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "shareAccountName": {
+            "type": "String"
+        },
+        "storageAccountName": {
+            "type": "String"
+        }
+    },
+    "variables": {
+    },
+    "resources": [
+        {
+            "type": "Microsoft.DataShare/accounts/shares/invitations",
+            "apiVersion": "2019-11-01",
+            "name": "[concat(parameters('shareAccountName'), '/MyShare/MyShare_ercenk_microsoft_com')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DataShare/accounts/shares', parameters('shareAccountName'), 'MyShare')]",
+                "[resourceId('Microsoft.DataShare/accounts', parameters('shareAccountName'))]"
+            ],
+            "properties": {
+                "targetEmail": "ercenk@microsoft.com"
+            }
+        }
+    ]
+}
