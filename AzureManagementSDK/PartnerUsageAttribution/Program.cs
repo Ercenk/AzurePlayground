@@ -29,7 +29,9 @@ namespace PartnerUsageAttribution
             var azure = Azure
                 .Configure()
                 // just set the product name, version is not required
-                .WithUserAgent("pid-1af03e76-4403-4298-a570-2d65516a794b", "")
+                // pid is in the form of pid-<publisher guid>
+                // Please see https://docs.microsoft.com/en-us/azure/marketplace/azure-partner-customer-usage-attribution#use-the-resource-manager-apis
+                .WithUserAgent(configuration["pid"], "")
                 .Authenticate(credentials)
                 .WithSubscription(configuration["subscriptionId"]);
 
