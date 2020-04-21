@@ -1,0 +1,14 @@
+az login
+az account list
+subscriptionName='....'
+az account set -s $subscriptionName
+az ad sp create-for-rbac -n "http://ErcAzMgmt"
+
+## Reset the password if you forgot it
+# az ad sp credential reset 
+dotnet user-secrets init
+
+dotnet user-secrets set "appId" "....."
+dotnet user-secrets set "password" "....."
+dotnet user-secrets set "tenant" "....."
+dotnet user-secrets set "subscriptionId" "......"
