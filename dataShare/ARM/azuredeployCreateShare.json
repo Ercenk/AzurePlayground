@@ -1,0 +1,155 @@
+
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "shareAccountName": {
+            "type": "String"
+        },
+        "storageAccountName": {
+            "type": "String"
+        },
+        "location": {
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.DataShare/accounts",
+            "apiVersion": "2019-11-01",
+            "name": "[parameters('shareAccountName')]",
+            "location": "[parameters('location')]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "[parameters('storageAccountName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            }
+        },
+        {
+            "type": "Microsoft.DataShare/accounts/shares",
+            "apiVersion": "2019-11-01",
+            "name": "[concat(parameters('shareAccountName'), '/MyShare')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DataShare/accounts', parameters('shareAccountName'))]"
+            ],
+            "properties": {
+                "shareKind": "CopyBased"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccountName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                },
+                "deleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccountName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DataShare/accounts/shares/dataSets",
+            "apiVersion": "2019-11-01",
+            "name": "[concat(parameters('shareAccountName'), '/MyShare/media')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DataShare/accounts/shares', parameters('shareAccountName'), 'MyShare')]",
+                "[resourceId('Microsoft.DataShare/accounts', parameters('shareAccountName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ],
+            "kind": "Container",
+            "properties": {
+                "containerName": "media",
+                "subscriptionId": "[subscription().subscriptionId]",
+                "resourceGroup": "[resourceGroup()]",
+                "storageAccountName": "[parameters('storageAccountName')]"
+            }
+        },
+
+        {
+            "type": "Microsoft.DataShare/accounts/shares/synchronizationSettings",
+            "apiVersion": "2019-11-01",
+            "name": "[concat(parameters('shareAccountName'), '/MyShare/MyShare_synchronizationSetting')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DataShare/accounts/shares', parameters('shareAccountName'), 'MyShare')]",
+                "[resourceId('Microsoft.DataShare/accounts', parameters('shareAccountName'))]"
+            ],
+            "kind": "ScheduleBased",
+            "properties": {
+                "recurrenceInterval": "Hour",
+                "synchronizationTime": "2020-04-15T21:37:29Z"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccountName'), '/default/media')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        }
+    ]
+}

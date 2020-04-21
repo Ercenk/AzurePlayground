@@ -1,0 +1,7 @@
+# To build the container:                               docker build -t azpscore .
+# To run the container, and remove it automatically:    docker run -it --rm -v %cd%:/var/scripts azpscore
+
+FROM mcr.microsoft.com/powershell:lts-debian-10
+RUN pwsh -c "Install-Module -Name Az -AllowClobber -Force"
+RUN pwsh -c "Find-Module -Name Az.DataShare | Install-Module -AllowClobber -Force"
+RUN pwsh
